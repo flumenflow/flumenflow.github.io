@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flumen User Manual</title>
+<meta name="description" content="How to use Flumen: build a flood model step by step, run it on this computer or a rented GPU, read and export the results, and drive it from the chat assistant or any MCP agent.">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="manual.css">
+</head>
+<body class="manual-page">
+
+<header class="nav scrolled" id="top">
+  <a class="brand" href="index.html"><img src="img/icon.png" alt="" width="30" height="30"><span>Flumen</span></a>
+  <nav>
+    <a href="index.html#features">Features</a>
+    <a href="index.html#agents">Agents</a>
+    <a href="manual.html" aria-current="page">Manual</a>
+    <a href="index.html#paper">Paper</a>
+    <a class="btn btn-small" href="index.html#contact">Get Flumen</a>
+  </nav>
+</header>
+
+<div class="man">
+  <aside class="toc" aria-label="Contents">
+    <p class="toc-h">User manual</p>
+    <a href="#start">1. Start Flumen</a>
+    <a href="#window">2. The window</a>
+    <a href="#first">3. A first flood model</a>
+    <a href="#terrain">4. Terrain</a>
+    <a href="#landuse">5. Land use</a>
+    <a href="#rivers">6. Rivers 1D</a>
+    <a href="#three">7. 3D</a>
+    <a href="#rain">8. Rain</a>
+    <a href="#boundaries">9. Boundaries</a>
+    <a href="#run">10. Run and the GPU</a>
+    <a href="#output">11. Output and export</a>
+    <a href="#chat">12. The chat assistant</a>
+    <a href="#mcp">13. Connect an AI agent (MCP)</a>
+    <a href="#files">14. Files and templates</a>
+    <a href="#trouble">15. Limits and troubleshooting</a>
+  </aside>
+
+  <main class="doc">
+    <p class="eyebrow">Flumen 0.1 · User manual</p>
+    <h1>Using Flumen</h1>
+    <p class="lead-doc">Flumen is a flood and coastal hydrodynamics program that you can drive in three ways, all on the same project files: by hand in the desktop window, through the chat assistant built into the window, or from any AI agent that speaks the Model Context Protocol (MCP), such as Claude Code or Claude Desktop. The screenshots in this manual come from the program itself, and the numbers in the worked example are the ones it returned.</p>
+
+    <section id="start">
+      <h2>1. Start Flumen</h2>
+      <p>Flumen comes as three programs that are built together. <code>flumen</code> is the desktop app and also the MCP server, <code>flumen-server</code> is the compute server that runs models on a GPU machine, and <code>tigrim</code> is the agent behind the chat assistant. Desktop builds are not on this site yet, so <a href="index.html#contact">write to the AI Research Group</a> to get a copy.</p>
+      <pre><code>flumen                    # open the app with the default model (Rain on a town)
+flumen flood.flumen       # open a saved model
+flumen --mcp              # no window: an MCP server on stdin/stdout for an agent</code></pre>
+      <p>The app keeps its settings in one folder, which is <code>~/Library/Application Support/Flumen</code> on macOS, <code>%APPDATA%\Flumen</code> on Windows and <code>~/.config/flumen</code> on Linux. That folder holds the compute server choice (<code>compute.json</code>), the chat settings and API key, and the agent's workspace, so deleting it resets Flumen without touching your models.</p>
+    </section>
+
+    <section id="window">
+      <h2>2. The window</h2>
+      <figure><img src="img/manual/terrain.jpg" alt="The Flumen window on the Terrain step, with the side panel on the left and the map on the right" loading="lazy"><figcaption>The Flumen window. The top bar holds the File menu, Undo and Redo, the Input and Output tabs and the green Run button, the side panel holds the seven input steps, and the map shows the model.</figcaption></figure>
+      <p>The top bar runs from left to right through the <b>File</b> menu (New model, Open model, Save model, Save model as and Import DEM), <b>Undo</b> and <b>Redo</b>, the <b>Input</b> and <b>Output</b> tabs and the green <b>Run</b> button, with the theme switch and the <b>Chat assistant</b> button on the right. The name of the open file appears beside them with a star when there are unsaved changes, and undo keeps the last 200 edits of the whole model.</p>
+      <table class="kv">
+        <tr><th>⌘Z / Ctrl+Z</th><td>Undo</td></tr>
+        <tr><th>⌘⇧Z or ⌘Y</th><td>Redo</td></tr>
+        <tr><th>⌘S / Ctrl+S</th><td>Save model</td></tr>
+        <tr><th>Scroll wheel</th><td>Zoom at the pointer</td></tr>
+        <tr><th>Drag</th><td>Pan (left button in Pan mode, middle or right button in any mode)</td></tr>
+        <tr><th>Double-click or Enter</th><td>Finish a zone, reservoir or river line; Esc cancels it</td></tr>
+      </table>
+      <p>The tool strip above the map holds <b>Pan</b>, <b>Fit</b> and, in Input, the gauge, source and zone tools. A gauge or source is placed with one click, whereas a zone takes one click per corner and is finished with a double-click. Rivers and reservoirs are drawn the same way but start from the <b>Draw a river</b> and <b>Draw reservoir</b> buttons in the side panel. The strip along the bottom shows the pointer position and the bed level under it, and the log below records every run, note and error, with errors in red and notes in amber.</p>
+    </section>
+
+    <section id="first">
+      <h2>3. A first flood model</h2>
+      <p>The quickest way to learn Flumen is to run the template it opens with, which drops a 60 mm, one-hour storm on 1.2 by 0.9 km of streets and building blocks that drain downhill to a free outflow on the east side.</p>
+      <ol class="steps">
+        <li>Choose <b>File → New model → Rain on a town</b>, or simply start the app, which opens this model.</li>
+        <li>Click through the step tabs from <b>Terrain</b> to <b>Run</b> to see how the model is built. The <b>Check</b> card at the bottom of the Run step estimates the cells, the time step and the run time before you start.</li>
+        <li>Press the green <b>Run</b> button. A Calculation window shows the progress and has a <b>Stop</b> button that keeps the maps computed so far.</li>
+        <li>When the run ends the app switches to <b>Output</b>, which shows the maximum depth map, the run summary and the gauge records.</li>
+      </ol>
+      <figure><img src="img/manual/output.jpg" alt="The Output tab after the Rain on a town run, with the maximum depth map and gauge depths" loading="lazy"><figcaption>Output after the template run on the CPU of a Mac (16 threads, 67,500 cells of 4 m, 2 h simulated, 121.8 s). The maximum depth was 0.864 m, the flooded area deeper than 0.1 m was 0.133 km², and the mass balance error was −2.25 × 10<sup>−14</sup> %.</figcaption></figure>
+      <p>The mass balance line is the first thing to read after any run, because it compares the water that entered and left with the water stored at the end. An error near round-off, as here, means the bookkeeping is sound, whereas a large error points to a setup problem that should be fixed before the maps are used.</p>
+    </section>
+
+    <section id="terrain">
+      <h2>4. Terrain</h2>
+      <p>The Terrain step sets the ground the water flows over, either as a <b>Synthetic terrain</b> for tests and teaching or as a <b>DEM file</b> for real sites. A synthetic terrain has a <b>Kind</b> (valley, urban, lowland, estuary, bar_flume, plane or bowl), a width, a length, a cell size, a slope and a seed for its roughness, so the same seed always gives the same ground.</p>
+      <p>A DEM can be a GeoTIFF or an ESRI ASCII grid, and it must be projected in metres (UTM or a national grid) with square cells and a single band, because a longitude–latitude raster is refused with a request to reproject it. <b>Model cell size</b> resamples the DEM to a coarser grid when it is set, and a value of 0 keeps the DEM's own cells. Set the <b>EPSG</b> code when the file does not carry one, so that exported maps open in the right place in QGIS or ArcGIS. The read-only <b>Grid</b> card then reports the cell count, the active cells, the extent and the range of bed levels.</p>
+    </section>
+
+    <section id="landuse">
+      <h2>5. Land use</h2>
+      <figure><img src="img/manual/landuse.jpg" alt="The Land use step with six classes and a park zone" loading="lazy"><figcaption>Land-use classes, each with its Manning's n and infiltration, and a polygon zone drawn over the default class.</figcaption></figure>
+      <p>Each land-use class has a <b>Manning's n</b> and an infiltration model, which is no infiltration, a constant rate, Green–Ampt (saturated conductivity, wetting-front suction and moisture deficit) or an SCS curve number with its initial abstraction ratio. Typical values from Chow (1959) and Rawls et al. (1983) are listed under the classes as a starting point, although they should be checked against local data.</p>
+      <p>The second card says where each class lies. <b>Everywhere else</b> sets the default class, a <b>Raster</b> of class codes can be mapped to classes through a code table, and <b>Zones</b> are polygons drawn on the map with <b>Draw zone</b>, with later zones lying on top of earlier ones. The map switches to land-use colours on this step, so you can see the result as you edit.</p>
+    </section>
+
+    <section id="rivers">
+      <h2>6. Rivers 1D</h2>
+      <figure><img src="img/manual/rivers.jpg" alt="The Rivers 1D step for the river_1d2d template" loading="lazy"><figcaption>A 1D river drawn along a valley, with a DEM-sampled section, an inflow hydrograph upstream and normal depth downstream.</figcaption></figure>
+      <p>A river carries its channel in 1D while the floodplain stays on the 2D grid, which keeps a narrow channel accurate without very small cells. Press <b>Draw a river</b> and click its centreline from upstream to downstream, then give it a Manning's n, a point spacing and cross-sections. A section can be a <b>Trapezoid</b>, a section sampled <b>From the DEM</b> or a table of <b>Surveyed points</b>, and between sections the river is interpolated.</p>
+      <p>Each end takes an inflow hydrograph, a water level, a tide, normal depth, a run-out onto the grid or a closed end, and <b>Joins</b> makes a tributary flow into another river. When <b>Channel cells</b> is ticked the cells under the channel leave the 2D grid, and the river then swaps water with the cells beside it over bank weirs whose coefficient C is set at the bottom of the step.</p>
+    </section>
+
+    <section id="three">
+      <h2>7. 3D</h2>
+      <figure><img src="img/manual/three.jpg" alt="The 3D step for the estuary template" loading="lazy"><figcaption>The 3D step of the estuary template, with 12 sigma layers, parabolic turbulence and salinity set inside and outside a polygon.</figcaption></figure>
+      <p>The 3D option splits each column into sigma layers that follow the bed and the surface, so the model gives velocity profiles and carries temperature and salinity, which matters for estuaries, salt intrusion and outfalls. Set the number of <b>Layers</b> (2 to 64), the <b>Turbulence</b> closure (parabolic, k–ε or a constant viscosity), whether stable stratification damps mixing, and the depth below which columns are treated as fully mixed.</p>
+      <p>The Temperature and Salinity cards turn each quantity on and set its starting field as a uniform value, a profile against level, or one value inside a polygon and another outside it. Wind and surface heat exchange are set on the same step, and wind also drives setup in 2D runs. The polygon itself is set from the chat or with the MCP tool <code>set_scalar</code>, and the temperature and salinity of boundary and source water are also set only through the chat or MCP at present.</p>
+    </section>
+
+    <section id="rain">
+      <h2>8. Rain</h2>
+      <figure><img src="img/manual/rain.jpg" alt="The Rain step with an SCS type II design storm and its hyetograph" loading="lazy"><figcaption>A 100 mm, 6 h SCS type II design storm in 10 min blocks, shown as a hyetograph before the run.</figcaption></figure>
+      <p>Rain falls on every active cell. It can be a constant rate, a hyetograph table, radar or interpolated rain grids, or a <b>Design storm</b>, which is triangular, SCS type II, uniform, or an alternating-block storm built from an IDF curve i = a/(t + b)<sup>c</sup>. The IDF constants a, b and c belong to the site and the return period, so take them from the local design manual rather than from an example.</p>
+      <p>The hyetograph under the settings shows the total depth and the peak intensity, which is a quick check that the storm is the one you meant. Rain grids are added with <b>Add rain grids...</b>, each new file starting 0.25 h after the one before, and <b>Last grid ends</b> closes the final interval.</p>
+    </section>
+
+    <section id="boundaries">
+      <h2>9. Boundaries</h2>
+      <figure><img src="img/manual/boundaries.jpg" alt="The Boundaries step for the coastal lowland template" loading="lazy"><figcaption>The coastal lowland template, with a tide on part of the east side, three pumps and an initial water level of 0.3 m.</figcaption></figure>
+      <p>Every side of the model is a wall unless a boundary is set on it, and a boundary covers the whole side or a stretch from <b>From</b> to <b>To</b> metres along it. The kinds are free outflow, water level, tide, inflow hydrograph, rating curve, normal depth and wall, and each kind shows only the fields it needs.</p>
+      <p><b>Sources and pumps</b> add or remove water at a point through a table of discharge against time, with negative values pumping out, and <b>Add a source on the map</b> places one with a click. <b>Water at the start</b> is dry, a level that fills every cell below it (inside a reservoir polygon if one is drawn), or a depth raster.</p>
+    </section>
+
+    <section id="run">
+      <h2>10. Run and the GPU</h2>
+      <figure><img src="img/manual/run.jpg" alt="The Run step with time, solver, compute server, gauges and the pre-run check" loading="lazy"><figcaption>The Run step: duration and output intervals, solver options, where the model calculates, gauges and the pre-run check.</figcaption></figure>
+      <p>The Run step sets the simulated <b>Duration</b>, how often maps and gauge values are kept, the depth that counts as flooded, the Courant number and the largest time step. <b>Manning scale</b> multiplies every n for calibration, <b>Order</b> chooses first order (robust) or second order (sharper fronts), and <b>Non-hydrostatic</b> adds dispersive short waves with a breaking switch, which is needed for wave flumes and tsunami runup but not for floods. <b>Coriolis</b> applies at a given latitude, and <b>Engine</b> selects Auto, GPU (CUDA) or CPU, with GPU disabled on a machine without an NVIDIA card.</p>
+      <p><b>Gauges</b> record depth, level and velocity at points and can be added on the map. The <b>Check</b> card validates the model and estimates the run time, so read it before a long run, together with any notes it lists.</p>
+      <h3>Running on a rented GPU</h3>
+      <p>A laptop without an NVIDIA card can send runs to <code>flumen-server</code> on a GPU machine. Under <b>Where it calculates</b>, enter the server address and token and press <b>Use</b>, which checks the server and saves the choice, or press <b>Local</b> to calculate on this computer again. The project and its rasters go to the server, and compact result frames come back.</p>
+      <pre><code>cloud/vast_gpu.sh up       # rent an RTX 4090/5090 box on Vast.ai, build and start flumen-server
+cloud/vast_gpu.sh tunnel   # SSH tunnel to 127.0.0.1:8787 and save compute.json
+cloud/vast_gpu.sh status   # the box and the server
+cloud/vast_gpu.sh down     # close the tunnel, forget the server and destroy the box</code></pre>
+      <p>The script needs the <code>vastai</code> command-line tool, ssh and Python 3, and the server speaks plain HTTP with a token, so always reach it through the SSH tunnel rather than over the open internet. Destroy the box with <code>down</code> when you finish, because a rented GPU is billed by the hour whether or not it is running a model. On your own GPU machine, start the server with <code>flumen-server --http 127.0.0.1:8787 --token YOUR_TOKEN</code>.</p>
+    </section>
+
+    <section id="output">
+      <h2>11. Output and export</h2>
+      <p>The <b>Run</b> card on the Output tab summarises the run, with the maximum depth and velocity and where they occur, the flooded area, the number of steps, the engine, the mass balance, and the volumes of rain, inflow, outflow, infiltration and storage at the end. A warning appears above it if the model has been edited since the run, because the maps then belong to the earlier model.</p>
+      <p>The <b>Map</b> card chooses what is drawn: water depth, level, velocity and depth × velocity at each saved time, their maxima over the run, the flood arrival time, the time of maximum depth and the bed level. 3D runs add surface and bottom salinity, temperature and velocity and the bottom-to-surface density difference. Quantities that change with time have <b>Play</b> and a frame slider, and <b>Fixed colour range</b> holds the legend steady for comparisons.</p>
+      <p>The chart under the map plots depth, level or velocity at the gauges, or the volumes against time. 3D runs add a vertical profile at each gauge, and models with rivers add a long profile of each reach with its invert, lower bank, maximum level and level at the chosen time.</p>
+      <table class="kv">
+        <tr><th>Map PNG...</th><td>A 1200 px picture with legend, gauges and title</td></tr>
+        <tr><th>GeoTIFF... / ASCII grid...</th><td>The quantity on screen at the current frame, as a raster</td></tr>
+        <tr><th>Flood extent GeoJSON... / shapefile...</th><td>Polygons of maximum depth above the Flooded at depth</td></tr>
+      </table>
+      <p>Exports carry the projection only when an EPSG code is known, which is why setting it on the Terrain step matters. Gauge series are not exported as CSV from the window, but an agent can read them with <code>get_timeseries_at_point</code>.</p>
+    </section>
+
+    <section id="chat">
+      <h2>12. The chat assistant</h2>
+      <figure class="narrow"><img src="img/manual/chat.jpg" alt="The chat assistant settings panel" loading="lazy"><figcaption>The assistant's Settings: the tigrim program, the LLM provider's API URL, model and key, and the Python the agent may use.</figcaption></figure>
+      <p><b>Chat assistant</b> opens a panel where you describe the study in plain words, for example "Rain of 80 mm in 2 hours on this town: where is the water deeper than 30 cm, and how fast does it come?". The agent behind it is <code>tigrim</code>, which uses Flumen as its only MCP server and an LLM of your choice to plan the steps, so it can set up the terrain, land use, rain and boundaries, run the model, read the results and show up to four maps under its reply.</p>
+      <p>Open <b>Settings</b> in the panel and enter the provider's <b>API URL</b> (for example <code>https://openrouter.ai/api/v1</code>), the <b>Model</b> and the <b>API key</b>, then press <b>Save key</b>. The key is stored in the settings folder, readable only by your user on macOS and Linux. The agent works on a copy of the current model and hands its changes back as one edit that <b>Undo</b> removes, and its results appear in Output without a second run.</p>
+      <p>The agent is told to use only the Flumen tools, to keep models to about 200,000 cells, to leave the inputs you gave unchanged unless you ask, and to report only numbers that the tools returned. Images can be attached only when the provider is OpenRouter and the model accepts images. If the panel reports that there is no LLM key, add the key under Settings.</p>
+    </section>
+
+    <section id="mcp">
+      <h2>13. Connect an AI agent (MCP)</h2>
+      <p>The MCP server is part of the <code>flumen</code> program, so no adaptor is needed. It talks JSON-RPC over stdin and stdout, and it exposes 43 tools that cover every step in the window and a few that the window does not have.</p>
+      <p class="label">Claude Code</p>
+      <pre><code>claude mcp add flumen -- /path/to/flumen --mcp</code></pre>
+      <p class="label">Claude Desktop, Cursor and other clients (JSON config)</p>
+      <pre><code>{
+  "mcpServers": {
+    "flumen": {
+      "command": "/path/to/flumen",
+      "args": ["--mcp", "--open", "/path/to/flood.flumen", "--autosave", "/path/to/flood.flumen"]
+    }
+  }
+}</code></pre>
+      <p><code>--open</code> starts the server with a model loaded, and <code>--autosave</code> writes the model back after every tool that changes it, so you can open the same file in the window and see what the agent built. Both are optional.</p>
+      <div class="toolgroups">
+        <div><h4>Model</h4><p>list_templates, create_model, get_model, validate</p></div>
+        <div><h4>Terrain and land</h4><p>import_dem, set_terrain, generate_mesh, set_roughness, add_land_use_class, set_land_use, set_infiltration</p></div>
+        <div><h4>Water in and out</h4><p>set_rainfall, apply_design_storm, set_initial_water, set_boundary_condition, add_source, add_gauge</p></div>
+        <div><h4>Rivers</h4><p>add_river, set_river_section, get_river_profile</p></div>
+        <div><h4>3D</h4><p>set_3d, set_scalar, set_wind, set_heat_exchange, get_vertical_profile, get_stratification, get_cross_section</p></div>
+        <div><h4>Run</h4><p>set_run, set_compute, run_simulation, get_run_status, cancel_run, list_scenarios</p></div>
+        <div><h4>Results</h4><p>get_max_depth, get_flood_extent, get_timeseries_at_point, get_runoff_summary, check_mass_balance, compare_scenarios, show_picture, export_map</p></div>
+        <div><h4>Calibration and screening</h4><p>calibrate_against_observations, predict_flood_fast</p></div>
+      </div>
+      <p>Some features exist only through MCP or the chat at present. Named scenarios and their comparison (<code>compare_scenarios</code>), background runs, calibration against an observed series (<code>calibrate_against_observations</code>, which needs a GPU server), quick screening on a coarser grid (<code>predict_flood_fast</code>), vertical sections of 3D runs, runoff coefficients and series at any point are not in the window, which keeps one set of results at a time.</p>
+      <p class="label">A good first prompt</p>
+      <pre><code>Open flood.flumen, check it with validate, run it, then check the mass balance
+before you report anything. Give me the flooded area deeper than 0.1 m and write
+the extent to extent.geojson.</code></pre>
+    </section>
+
+    <section id="files">
+      <h2>14. Files and templates</h2>
+      <p>A model is saved as a <code>.flumen</code> file, which is readable JSON with the title, terrain, land-use classes and zones, rain, initial water, boundaries, sources, gauges, rivers, 3D settings, wind and run settings. When the results in memory belong to the saved model they are written beside it as <code>name.results.bin</code> and loaded back on Open, so a finished run does not have to be repeated. Rasters are referenced by path rather than copied, so keep them next to the model when you move it.</p>
+      <table class="kv">
+        <tr><th>Rain on a town</th><td>60 mm in 1 h on 1.2 × 0.9 km of streets and blocks, free outflow downhill</td></tr>
+        <tr><th>River flood</th><td>An inflow hydrograph peaking at 250 m³/s down a 3 km valley onto its floodplain</td></tr>
+        <tr><th>Coastal lowland</th><td>100 mm SCS type II rain in 6 h on a canal grid behind a floodwall on a tidal river, with pumps</td></tr>
+        <tr><th>River flood, 1D-2D</th><td>The same valley with its channel as a 1D river spilling onto the 2D floodplain</td></tr>
+        <tr><th>Estuary, 3D</th><td>Salt intrusion from a 32 PSU tidal sea into a 20 km estuary against a 300 m³/s river, 12 layers</td></tr>
+        <tr><th>Wave flume</th><td>Non-hydrostatic 2.02 s waves over the submerged bar of Beji and Battjes (1993)</td></tr>
+        <tr><th>Dam break</th><td>A 4 m reservoir released down a dry valley</td></tr>
+        <tr><th>Blank</th><td>A flat 500 m square, no rain, walls all round</td></tr>
+      </table>
+    </section>
+
+    <section id="trouble">
+      <h2>15. Limits and troubleshooting</h2>
+      <dl class="faq">
+        <dt>The DEM is refused.</dt>
+        <dd>Flumen needs a single-band raster in metres with square cells, so reproject a longitude–latitude DEM to UTM or a national grid first, for example with <code>gdalwarp -t_srs EPSG:32647</code> for Bangkok.</dd>
+        <dt>Stop does nothing on a remote run.</dt>
+        <dd>Stop works on runs on this computer only, and a run on a compute server also shows no progress until it ends. Keep remote runs short while you test, and check the Check card's estimate before a long one.</dd>
+        <dt>The GPU option is greyed out.</dt>
+        <dd>The CUDA engine needs an NVIDIA GPU with its driver, and on other machines Flumen calculates on the CPU or on a compute server set under Run.</dd>
+        <dt>The mass balance error is large.</dt>
+        <dd>Do not use the maps. Check the boundaries, sources and the Largest step setting against the notes in the log, then run again.</dd>
+        <dt>The exported map opens in the wrong place.</dt>
+        <dd>Set the EPSG code on the Terrain step, because the export carries no projection otherwise and the log says so.</dd>
+        <dt>The chat says there is no LLM key.</dt>
+        <dd>Open Settings in the chat panel, enter the provider's URL, model and key, and press Save key.</dd>
+      </dl>
+      <p>The depth-integrated equations cannot represent splash, overturning waves or flow that is strongly three-dimensional at a structure, and the paper reports where this limits the results, for example a wall splash that stays 60–67 % low. Read <a href="https://zenodo.org/records/23918670" target="_blank" rel="noopener">the paper</a> for the verification and benchmark results before using Flumen on a design.</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div><img src="img/icon.png" alt="" width="22" height="22"> Flumen · AI Research Group, Department of Civil Engineering, KMUTT</div>
+  <div><a href="index.html">Home</a> · <a href="https://zenodo.org/records/23918670" target="_blank" rel="noopener">Paper</a> · <a href="mailto:tellusfem@gmail.com?subject=Flumen">tellusfem@gmail.com</a></div>
+</footer>
+<script src="manual.js"></script>
+</body>
+</html>
