@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flumen · Flood hydrodynamics</title>
+<meta name="description" content="Flumen is a GPU-accelerated program for flood and coastal hydrodynamics: 2D shallow water with rain on grid, 1D-2D rivers, 3D sigma layers, non-hydrostatic waves, and 43 MCP tools for AI agents.">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav" id="top">
+  <a class="brand" href="#top"><img src="img/icon.png" alt="" width="30" height="30"><span>Flumen</span></a>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#physics">Physics</a>
+    <a href="#gpu">GPU</a>
+    <a href="#validation">Validation</a>
+    <a href="#agents">Agents</a>
+    <a href="#paper">Paper</a>
+    <a class="btn btn-small" href="#contact">Get Flumen</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="hero-text intro">
+    <p class="eyebrow">Flood · river · coastal · GPU · agent-ready</p>
+    <h1>Water on every cell,<br><span class="grad">in seconds on a GPU.</span></h1>
+    <p class="lead">Flumen solves the shallow-water equations with rain on grid, infiltration and a full set of boundaries, couples them to 1D rivers, extends them to 3D salt and heat on sigma layers, and adds a non-hydrostatic pressure for short waves. Every step is also a Model Context Protocol tool, so an AI agent can build, run and calibrate a model for you.</p>
+    <div class="cta">
+      <a class="btn" href="https://zenodo.org/records/23918670" target="_blank" rel="noopener">Read the paper</a>
+      <a class="btn btn-ghost" href="#physics">See the physics</a>
+      <a class="btn btn-ghost" href="#contact">Get Flumen</a>
+    </div>
+    <p class="fine">Written in Rust · CPU reference engine + CUDA engine · MIT licensed source</p>
+  </div>
+  <div class="hero-sim intro intro2">
+    <canvas id="sim" aria-label="Live shallow-water simulation: a reservoir released into a town of street blocks"></canvas>
+    <div class="sim-hud">
+      <span id="simStage">Dam break</span>
+      <span id="simTime">t = 0 s</span>
+      <span id="simArea">flooded 0 m²</span>
+      <span id="simMass">mass error 0 %</span>
+    </div>
+    <div class="sim-legend">
+      <div class="ramp"><span>0</span><i></i><span>2 m depth</span></div>
+      <button class="chip" id="simNext" type="button">Next scenario</button>
+      <span class="sim-note">Live 2D shallow-water model in your browser (HLL + hydrostatic reconstruction, 4 m cells). Click or drag on the map to pour water.</span>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat"><b data-count="43">0</b><span>MCP tools for agents</span></div>
+  <div class="stat"><b data-count="21">0</b><span>verification tests, pass on CPU and GPU</span></div>
+  <div class="stat"><b data-count="3.1" data-dec="1">0</b><span>seconds for 1 h of flood on 1.08 M cells</span></div>
+  <div class="stat"><b data-count="42">0</b><span>× faster on GPU, 48 h 3D estuary</span></div>
+</section>
+
+<section id="features" class="section">
+  <div class="section-head reveal">
+    <p class="eyebrow">Features</p>
+    <h2>One program from the storm to the flood map</h2>
+    <p>Import a DEM, paint land use, apply a design storm or a hydrograph, set tides and pumps, run on your own GPU or a rented one, and export the flood extent to GIS.</p>
+  </div>
+  <div class="grid">
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17c3 0 3-2 6-2s3 2 6 2 3-2 6-2"/><path d="M3 12c3 0 3-2 6-2s3 2 6 2 3-2 6-2"/></svg></div>
+      <h3>2D shallow water</h3>
+      <p>Finite volumes with an HLL Riemann solver and Audusse hydrostatic reconstruction, first or second order (MUSCL + Heun), robust wetting and drying and point-implicit Manning friction.</p>
+    </article>
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M7 4v4M12 2v6M17 4v4"/><path d="M4 14h16v6H4z"/></svg></div>
+      <h3>Rain on grid</h3>
+      <p>Constant, hyetograph, radar grids or design storms (alternating block from an IDF curve, SCS type II), with constant, Green–Ampt or SCS curve-number infiltration per land-use class.</p>
+    </article>
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 6c5 0 5 6 9 6s4 6 9 6"/><path d="M3 10v8h18"/></svg></div>
+      <h3>1D–2D rivers</h3>
+      <p>Local-inertial 1D channels with trapezoid, surveyed or DEM-sampled sections, joins, and bank weirs with Villemonte submergence that swap water with the 2D floodplain.</p>
+    </article>
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 10h18M3 15h18M3 20h18"/><path d="M14 20c0-6 3-10 7-12"/></svg></div>
+      <h3>3D salt and heat</h3>
+      <p>Hydrostatic sigma layers, UNESCO density, baroclinic pressure, parabolic or k–ε turbulence, wind stress, surface heat exchange and Coriolis for estuaries and outfalls.</p>
+    </article>
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 16c2 0 3-8 6-8s4 8 6 8 3-5 5-5 2 2 3 2"/></svg></div>
+      <h3>Non-hydrostatic waves</h3>
+      <p>A depth-integrated non-hydrostatic pressure (Stelling and Zijlema; Yamazaki) for dispersive short waves and tsunami runup, with a breaking switch and a wall-impact rule.</p>
+    </article>
+    <article class="card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16M4 14h16M9 4v16M14 4v16"/></svg></div>
+      <h3>GIS in and out</h3>
+      <p>ESRI ASCII grids and GeoTIFF DEMs in metres, land-use rasters and polygon zones, and flood extents written as GeoJSON or shapefiles, plus depth and velocity maps as pictures.</p>
+    </article>
+  </div>
+</section>
+
+<section id="physics" class="section alt">
+  <div class="section-head reveal">
+    <p class="eyebrow">Physics</p>
+    <h2>Rivers, estuaries and waves, not only floodplains</h2>
+    <p>The same grid carries three extensions of the 2D model, each verified against an analytical result on both engines.</p>
+  </div>
+
+  <div class="split reveal">
+    <div class="panel"><canvas id="river" aria-label="Cross-section of a 1D river overtopping its banks onto a 2D floodplain"></canvas></div>
+    <div class="split-text">
+      <h3>1D river, 2D floodplain</h3>
+      <p>The channel leaves the grid and becomes a chain of 1D sections. When the river rises above the lower bank, weir flow carries water onto the floodplain cells beside it, and it returns the same way as the flood recedes.</p>
+      <ul class="facts">
+        <li><b>−0.17 %</b> normal depth</li>
+        <li><b>0.11 %</b> M1 backwater vs gradually varied flow</li>
+        <li><b>1.9 s</b> GPU vs 44 s CPU, valley template</li>
+      </ul>
+      <p class="fine">Animation is a schematic of the bank exchange, not a model run.</p>
+    </div>
+  </div>
+
+  <div class="split rev reveal">
+    <div class="panel"><canvas id="estuary" aria-label="Long section of a tidal estuary with sigma layers and a salt wedge moving with the tide"></canvas></div>
+    <div class="split-text">
+      <h3>3D estuary on sigma layers</h3>
+      <p>Sea water is heavier than river water, so it slides upstream along the bed as a salt wedge that moves with the tide. Flumen splits the 3D layers from the 2D depth-averaged flow, so the free surface keeps the speed of the 2D solver.</p>
+      <ul class="facts">
+        <li><b>+1.1 %</b> wind setup</li>
+        <li><b>84 %</b> of ½√(g′H) lock-exchange front speed</li>
+        <li><b>13 s</b> GPU vs 546 s CPU, 48 h estuary, 12 layers</li>
+      </ul>
+      <p class="fine">Animation is a schematic of a tidal salt wedge, not a model run.</p>
+    </div>
+  </div>
+
+  <div class="split reveal">
+    <div class="panel"><canvas id="waves" aria-label="Bar chart of standing-wave period error for hydrostatic and non-hydrostatic models"></canvas></div>
+    <div class="split-text">
+      <h3>Short waves need non-hydrostatic pressure</h3>
+      <p>A hydrostatic model makes short waves travel too fast, so their period error grows with kh. The non-hydrostatic option keeps the error near the depth-integrated limit, and a solitary wave keeps its speed to within 0.6 % after 60 m against 6.6 % for the hydrostatic model.</p>
+      <p class="fine">Period error of standing waves against linear theory, from swe/tests/nonhydro.rs.</p>
+    </div>
+  </div>
+</section>
+
+<section id="gpu" class="section">
+  <div class="section-head reveal">
+    <p class="eyebrow">GPU</p>
+    <h2>The same physics, ten to fifty times faster</h2>
+    <p>The CUDA engine is compiled at run time, keeps the time step on the device and replays 32-step batches as a CUDA graph. It reproduces the errors of the double-precision CPU engine on every verification test. A laptop without an NVIDIA card sends the run to a rented GPU over an SSH tunnel and gets compact frames back.</p>
+  </div>
+  <div class="bars reveal" id="gpuBars"></div>
+  <p class="fine center">RTX 4090 against the CPU engine on 23 threads. Wall-clock seconds for the run.</p>
+</section>
+
+<section id="validation" class="section alt">
+  <div class="section-head reveal">
+    <p class="eyebrow">Validation</p>
+    <h2>Checked against theory, other programs and the laboratory</h2>
+    <p>Analytical tests first, then the Environment Agency inter-model benchmark against LISFLOOD-FP, then two NTHMP laboratory benchmarks with measured gauges and runup.</p>
+  </div>
+  <div class="table-wrap reveal">
+    <table>
+      <thead><tr><th>Test</th><th>Measure</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Lake at rest</td><td>spurious velocity</td><td>10<sup>−15</sup> m/s</td></tr>
+        <tr><td>Stoker dam break (wet bed)</td><td>L1 depth error, order 1 / 2</td><td>0.331 / 0.085 %</td></tr>
+        <tr><td>Ritter dam break (dry bed)</td><td>L1 depth error, order 1 / 2</td><td>0.424 / 0.161 %</td></tr>
+        <tr><td>Green–Ampt infiltration</td><td>depth infiltrated</td><td>32.78 vs 32.75 mm</td></tr>
+        <tr><td>EA Test 4, 5 m</td><td>depth RMSE vs LISFLOOD-FP</td><td>2 mm</td></tr>
+        <tr><td>EA Test 5, 10 m</td><td>depth RMSE vs LISFLOOD-FP</td><td>24 mm</td></tr>
+        <tr><td>NTHMP BP5 solitary wave</td><td>gauge RMSE, calibrated</td><td>1.0–10.3 mm</td></tr>
+        <tr><td>NTHMP BP7 Monai valley</td><td>runup at the highest point</td><td>within 1 %</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="gallery">
+    <figure class="reveal"><img src="img/ea_test4_5m.jpg" alt="EA Test 4 depth comparison with LISFLOOD-FP" loading="lazy"><figcaption>EA Test 4, 5 m grid: depths against LISFLOOD-FP 8.0.</figcaption></figure>
+    <figure class="reveal"><img src="img/ea_test5_10m.jpg" alt="EA Test 5 depth comparison with LISFLOOD-FP" loading="lazy"><figcaption>EA Test 5, 10 m grid: within the spread of LISFLOOD-FP's own solvers.</figcaption></figure>
+    <figure class="reveal"><img src="img/bp5_gauges.jpg" alt="NTHMP BP5 gauge records against model" loading="lazy"><figcaption>NTHMP BP5: solitary wave on a composite beach, measured and modelled gauges.</figcaption></figure>
+    <figure class="reveal"><img src="img/bp7_gauges.jpg" alt="NTHMP BP7 Monai valley gauges" loading="lazy"><figcaption>NTHMP BP7: Monai valley tsunami runup, measured and modelled gauges.</figcaption></figure>
+  </div>
+  <p class="honest reveal">What did not work is reported too: a splash twice the water depth on the BP5 wall stays 60–67 % low, because it lies outside depth-integrated equations, and the drawdown at one Monai gauge is not reproduced by any physical or numerical setting tried.</p>
+</section>
+
+<section id="agents" class="section">
+  <div class="section-head reveal">
+    <p class="eyebrow">Agents</p>
+    <h2>Ask for a flood study in plain words</h2>
+    <p>The MCP server is built into the program. An agent such as Claude Code connects to <code>flumen --mcp</code> and calls the same 43 tools that sit behind the window, from <code>import_dem</code> to <code>calibrate_against_observations</code>.</p>
+  </div>
+  <div class="agent reveal">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>claude · flumen MCP</span></div>
+      <pre id="replay" aria-live="polite"></pre>
+    </div>
+    <div class="tools" id="tools"></div>
+  </div>
+  <p class="fine center">Example sequence of tool calls; the tool names are Flumen's own, the replies are abbreviated.</p>
+  <div class="snip reveal">
+    <pre><code>claude mcp add flumen -- flumen --mcp</code></pre>
+  </div>
+</section>
+
+<section id="arch" class="section alt">
+  <div class="section-head reveal">
+    <p class="eyebrow">Architecture</p>
+    <h2>Window, agent and GPU server share one core</h2>
+  </div>
+  <figure class="arch reveal"><img src="img/arch.jpg" alt="Flumen architecture diagram" loading="lazy"></figure>
+</section>
+
+<section id="paper" class="section">
+  <div class="section-head reveal">
+    <p class="eyebrow">Paper</p>
+    <h2>Architecture, verification and calibration</h2>
+    <p>The paper describes the solvers, the CUDA engine and the agent interface, and reports every verification and benchmark result on this page, including the ones that failed.</p>
+  </div>
+  <div class="paper reveal">
+    <h3>Flumen: an agentic, GPU-accelerated program for flood and coastal hydrodynamics, its architecture and its calibration against laboratory and inter-model benchmarks</h3>
+    <p>Sompote Youwai · AI Research Group, Department of Civil Engineering, KMUTT · Zenodo, 2026</p>
+    <div class="cta">
+      <a class="btn" href="https://zenodo.org/records/23918670" target="_blank" rel="noopener">Open on Zenodo</a>
+      <button class="btn btn-ghost" id="copyBib" type="button">Copy BibTeX</button>
+    </div>
+    <pre class="bib" id="bib">@misc{youwai2026flumen,
+  author    = {Youwai, Sompote},
+  title     = {Flumen: an agentic, {GPU}-accelerated program for flood and coastal
+               hydrodynamics, its architecture and its calibration against
+               laboratory and inter-model benchmarks},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23918670},
+  url       = {https://zenodo.org/records/23918670}
+}</pre>
+  </div>
+</section>
+
+<section id="contact" class="section alt">
+  <div class="section-head reveal">
+    <p class="eyebrow">Get Flumen</p>
+    <h2>Builds are on the way</h2>
+    <p>Desktop builds for macOS and Windows are being prepared. To use Flumen on a project now, or to run it on a GPU server, write to the AI Research Group.</p>
+  </div>
+  <div class="cta center reveal">
+    <a class="btn" href="mailto:tellusfem@gmail.com?subject=Flumen">tellusfem@gmail.com</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div><img src="img/icon.png" alt="" width="22" height="22"> Flumen · AI Research Group, Department of Civil Engineering, KMUTT</div>
+  <div><a href="https://zenodo.org/records/23918670" target="_blank" rel="noopener">Paper (doi:10.5281/zenodo.23918670)</a></div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
